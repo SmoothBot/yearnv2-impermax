@@ -13,7 +13,8 @@
         "prettier": "prettier --write 'contracts/**/*.sol'",
         "lint": "pretty-quick --pattern '**/*.*(sol|json)' --verbose",
         "lint:check": "prettier --check **/*.sol **/*.json",
-        "lint:fix": "pretty-quick --pattern '**/*.*(sol|json)' --staged --verbose"
+        "lint:fix": "pretty-quick --pattern '**/*.*(sol|json)' --staged --verbose",
+        "test": "brownie test --network ftm-main-fork -s -x -i"
     },
     "husky": {
         "hooks": {

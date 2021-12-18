@@ -7,19 +7,17 @@ params = [
         "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
         "0x5AA53f03197E08C4851CAD8C92c7922DA5857E5d",
         [
-            ["0x5dd76071F7b5F4599d4F2B7c08641843B746ace9"],  # FTM-TARROT LP
-            ["0xD05f23002f6d09Cf7b643B69F171cc2A3EAcd0b3"],  # FTM-BOO LP
+            "0x5dd76071F7b5F4599d4F2B7c08641843B746ace9",  # FTM-TARROT LP
+            "0xD05f23002f6d09Cf7b643B69F171cc2A3EAcd0b3",  # FTM-BOO LP
         ],
         [
-            ["0x93a97db4fEA1d053C31f0B658b0B87f4b38e105d"],  # FTM-SPIRIT LP Highest apr
-            [
-                "0x7A7dd36BCca42952CC1E67BcA1Be44097fF5b644"
-            ],  # FTM-BTC LP Spooky 2nd highest apr
-            ["0x5dd76071F7b5F4599d4F2B7c08641843B746ace9"],  # FTM-TARROT LP Spooky
-            ["0x8C97Dcb6a6b08E8bEECE3D75e918FbC076C094ab"],
-            ["0x6e11aaD63d11234024eFB6f7Be345d1d5b8a8f38"],  # USDC-FTM Spirit
-            ["0x5B80b6e16147bc339e22296184F151262657A327"],  # FTM-CRV LP Spooky
-            ["0xD05f23002f6d09Cf7b643B69F171cc2A3EAcd0b3"],  # FTM-BOO LP
+            "0x93a97db4fEA1d053C31f0B658b0B87f4b38e105d",  # FTM-SPIRIT LP Highest apr
+            "0x7A7dd36BCca42952CC1E67BcA1Be44097fF5b644",  # FTM-BTC LP Spooky 2nd highest apr
+            "0x5dd76071F7b5F4599d4F2B7c08641843B746ace9",  # FTM-TARROT LP Spooky
+            "0x8C97Dcb6a6b08E8bEECE3D75e918FbC076C094ab",
+            "0x6e11aaD63d11234024eFB6f7Be345d1d5b8a8f38",  # USDC-FTM Spirit
+            "0x5B80b6e16147bc339e22296184F151262657A327",  # FTM-CRV LP Spooky
+            "0xD05f23002f6d09Cf7b643B69F171cc2A3EAcd0b3",  # FTM-BOO LP
         ],
         id="FTM LP TarrotLender",
     ),
@@ -101,6 +99,11 @@ def vault(pm, gov, rewards, guardian, currency):
     vault.setManagementFee(0, {"from": gov})
     vault.setDepositLimit(2 ** 256 - 1, {"from": gov})
     yield vault
+
+
+@pytest.fixture
+def Strategy(TarotLendingStrategy):
+    yield TarotLendingStrategy
 
 
 @pytest.fixture

@@ -16,11 +16,15 @@ import "../interfaces/ILendingPool.sol";
 
 interface IERC20Extended is IERC20 {
     function decimals() external view returns (uint8);
+
+    function name() external view returns (string memory);
+
+    function symbol() external view returns (string memory);
 }
 
 interface ILendingPoolToken is ILendingPool, IERC20Extended {}
 
-contract Strategy is BaseStrategy {
+contract TarotLendingStrategy is BaseStrategy {
     using SafeERC20 for IERC20;
     using SafeERC20 for ILendingPoolToken;
     using Address for address;
@@ -100,13 +104,18 @@ contract Strategy is BaseStrategy {
             newStrategy := create(0, clone_code, 0x37)
         }
 
-        Strategy(newStrategy).initialize(_vault, _strategist, _rewards, _keeper, _pools);
+        TarotLendingStrategy(newStrategy).initialize(_vault, _strategist, _rewards, _keeper, _pools);
 
         emit Cloned(newStrategy);
     }
 
     function name() external view override returns (string memory) {
-        return "StrategyTarotLender";
+        return string(
+            abi.encodePacked(
+                "StrategyTarotLender",
+                IERC20Extended(address(want)).symbol()
+            )
+        );
     }
 
     function wantTobToken(address _pool, uint256 _requiredWant) internal view returns (uint256 _amount) {
