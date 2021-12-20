@@ -77,3 +77,11 @@ def test_decrease_debt_limit(gov, whale, currency, vault, strategy, allocChangeC
     strategy.harvest()
     assert strategy.estimatedTotalAssets() >= includeSmallInaccurancy(final_amount)
     assert vault.debtOutstanding(strategy) == 0
+
+    chain.sleep(500)
+
+    # let's lower the debtLimit to 0 to see if we can empty the strategy
+    vault.updateStrategyDebtRatio(strategy, 0)
+    strategy.harvest()
+    assert strategy.estimatedTotalAssets() >= includeSmallInaccurancy(0)
+    assert vault.debtOutstanding(strategy) == 0
