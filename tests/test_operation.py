@@ -9,13 +9,13 @@ import conftest as config
 
 @pytest.mark.parametrize(config.fixtures, config.params, indirect=True)
 @pytest.mark.require_network("ftm-main-fork")
-def test_operation(currency, strategy, vault, whale, gov, bob, alice, allocChangeConf):
+def test_operation(currency, strategy, vault, whale, gov, bob, alice, allocChangeConf, price, scale, decimals):
     # Amount configs
-    test_budget = 888000 * 1e18
-    approve_amount = 1000000 * 1e18
-    deposit_limit = 889000 * 1e18
-    bob_deposit = 100000 * 1e18
-    alice_deposit = 788000 * 1e18
+    test_budget = int(888000 * scale / price)
+    approve_amount = int(1000000 * scale / price)
+    deposit_limit = int(889000 * scale / price)
+    bob_deposit = int(100000 * scale / price)
+    alice_deposit = int(788000 * scale / price)
     currency.approve(whale, approve_amount, {"from": whale})
     currency.transferFrom(whale, gov, test_budget, {"from": whale})
 
@@ -35,17 +35,17 @@ def test_operation(currency, strategy, vault, whale, gov, bob, alice, allocChang
     # Set locked profit degradation to small amount so pps increases during test
     vault.setLockedProfitDegradation(Wei("1 ether"))
     # Sleep and harvest 5 times,approx for 24 hours
-    sleepAndHarvest(5, strategy, gov)
+    sleepAndHarvest(5, strategy, gov, scale)
     strategy.changeAllocs(allocChangeConf, {"from": gov})
     strategy.rebalance(strategy.balanceOfStake() / 2)
-    sleepAndHarvest(5, strategy, gov)
+    sleepAndHarvest(5, strategy, gov, scale)
     chain.sleep(6 * 60 * 60)
     chain.mine(1)
     # We should have made profit or stayed stagnant (This happens when there is no rewards in 1INCH rewards)
-    assert vault.pricePerShare() / 1e18 >= 1
+    assert vault.pricePerShare() / scale >= 1
     # Log estimated APR
-    growthInShares = vault.pricePerShare() - 1e18
-    growthInPercent = (growthInShares / 1e18) * 100
+    growthInShares = vault.pricePerShare() - scale
+    growthInPercent = (growthInShares / scale) * 100
     growthInPercent = growthInPercent / 2
     growthYearly = growthInPercent * 365
     print(f"Yearly APR :{growthYearly}%")
@@ -77,24 +77,24 @@ def test_operation(currency, strategy, vault, whale, gov, bob, alice, allocChang
     assert currency.balanceOf(bob) >= bob_deposit
 
     # Make sure it isnt less than 1 after depositors withdrew
-    assert vault.pricePerShare() / 1e18 >= 1
+    assert vault.pricePerShare() / scale >= 1
 
 
-def sleepAndHarvest(times, strat, gov):
+def sleepAndHarvest(times, strat, gov, scale):
     for i in range(times):
-        debugStratData(strat, "Before harvest" + str(i))
+        debugStratData(strat, "Before harvest" + str(i), scale)
         chain.sleep(17280)
         chain.mine(1)
         strat.harvest({"from": gov})
-        debugStratData(strat, "After harvest" + str(i))
+        debugStratData(strat, "After harvest" + str(i), scale)
 
 
 # Used to debug strategy balance data
-def debugStratData(strategy, msg):
+def debugStratData(strategy, msg, scale):
     print(msg)
     print("Total assets " + str(strategy.estimatedTotalAssets()))
     print(
-        str(strategy.bTokenToWant("0x5dd76071F7b5F4599d4F2B7c08641843B746ace9", 1e18))
+        str(strategy.bTokenToWant("0x5dd76071F7b5F4599d4F2B7c08641843B746ace9", scale))
     )
     print("ftm Balance " + str(strategy.balanceOfWant()))
     print("Stake balance " + str(strategy.balanceOfStake()))

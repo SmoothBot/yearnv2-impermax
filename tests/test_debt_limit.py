@@ -3,10 +3,6 @@ import brownie
 from brownie import Wei, chain
 import conftest as config
 
-deposit_amount = 40000 * 1e18
-second_deposit_amount = 160000 * 1e18
-final_amount = 80000 * 1e18
-
 
 def includeSmallInaccurancy(amount):
     # Allow for 0.001% difference due to calc of btoken required to withdraw amount
@@ -14,7 +10,11 @@ def includeSmallInaccurancy(amount):
 
 
 @pytest.mark.parametrize(config.fixtures, config.params, indirect=True)
-def test_increasing_debt_limit(gov, whale, currency, vault, strategy, allocChangeConf):
+def test_increasing_debt_limit(gov, whale, currency, vault, strategy, allocChangeConf, price, scale):
+    deposit_amount = int(40000 * scale / price)
+    second_deposit_amount = int(160000 * scale / price)
+    final_amount = int(80000 * scale / price)
+
     currency.approve(vault, 2 ** 256 - 1, {"from": gov})
     # Fund gov with enough tokens
     currency.approve(whale, deposit_amount + second_deposit_amount, {"from": whale})
@@ -50,7 +50,15 @@ def test_increasing_debt_limit(gov, whale, currency, vault, strategy, allocChang
 
 
 @pytest.mark.parametrize(config.fixtures, config.params, indirect=True)
-def test_decrease_debt_limit(gov, whale, currency, vault, strategy, allocChangeConf):
+def test_decrease_debt_limit(gov, whale, currency, vault, strategy, allocChangeConf, price, scale):
+    deposit_amount = int(40000 * scale / price)
+    second_deposit_amount = int(160000 * scale / price)
+    final_amount = int(80000 * scale / price)
+
+    print(deposit_amount)
+    print(second_deposit_amount)
+    print(final_amount)
+
     currency.approve(vault, 2 ** 256 - 1, {"from": gov})
     # Fund gov with enough tokens
     currency.approve(whale, deposit_amount + second_deposit_amount, {"from": whale})
@@ -74,11 +82,13 @@ def test_decrease_debt_limit(gov, whale, currency, vault, strategy, allocChangeC
 
     # let's lower the debtLimit so the strategy adjust it's position
     vault.updateStrategyDebtRatio(strategy, 5_000)
+    chain.mine()
     strategy.harvest()
     assert strategy.estimatedTotalAssets() >= includeSmallInaccurancy(final_amount)
     assert vault.debtOutstanding(strategy) == 0
 
     chain.sleep(500)
+    chain.mine()
 
     # let's lower the debtLimit to 0 to see if we can empty the strategy
     vault.updateStrategyDebtRatio(strategy, 0)
