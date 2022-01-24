@@ -1,6 +1,6 @@
 import pytest
 import brownie
-from brownie import Wei, chain
+from brownie import Wei, chain, history
 import conftest as config
 
 
@@ -74,6 +74,7 @@ def test_decrease_debt_limit(gov, whale, currency, vault, strategy, allocChangeC
     vault.deposit(second_deposit_amount, {"from": gov})
     strategy.harvest()
     chain.sleep(500)
+    chain.mine()
     strategy.harvest()
 
     assert strategy.estimatedTotalAssets() >= includeSmallInaccurancy(
@@ -82,16 +83,16 @@ def test_decrease_debt_limit(gov, whale, currency, vault, strategy, allocChangeC
 
     # let's lower the debtLimit so the strategy adjust it's position
     vault.updateStrategyDebtRatio(strategy, 5_000)
+    chain.sleep(500)
     chain.mine()
     strategy.harvest()
     assert strategy.estimatedTotalAssets() >= includeSmallInaccurancy(final_amount)
     assert vault.debtOutstanding(strategy) == 0
 
-    chain.sleep(500)
-    chain.mine()
-
     # let's lower the debtLimit to 0 to see if we can empty the strategy
     vault.updateStrategyDebtRatio(strategy, 0)
-    strategy.harvest()
+    chain.sleep(500)
+    chain.mine()
+    tx = strategy.harvest()
     assert strategy.estimatedTotalAssets() >= includeSmallInaccurancy(0)
     assert vault.debtOutstanding(strategy) == 0
