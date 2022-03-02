@@ -199,7 +199,7 @@ contract StrategyImperamaxLender is BaseStrategy {
         address[] memory newPoolSorting,
         uint256 low,
         uint256 high
-    ) internal pure {
+    ) internal {
         if (low < high) {
             uint256 pivotVal = utilizations[(low + high) / 2];
 
