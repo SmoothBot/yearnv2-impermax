@@ -230,6 +230,7 @@ def test_remove_pair_free(
 
 # deposit to pools, manually send out free liquidity from these pools to lock our funds up to simulate high utilization
 def test_remove_pair_locked(
+    interface,
     gov,
     token,
     vault,
@@ -279,8 +280,8 @@ def test_remove_pair_locked(
     print("New balance of pool 2:", after / (10 ** token.decimals()))
 
     # update the pools
-    pool_1 = Contract(strategy.pools(0))
-    pool_2 = Contract(strategy.pools(2))
+    pool_1 = interface.IBorrowable(strategy.pools(0))
+    pool_2 = interface.IBorrowable(strategy.pools(2))
     pool_1.sync({"from": whale})
     pool_2.sync({"from": whale})
     chain.sleep(1)

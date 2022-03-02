@@ -18,7 +18,7 @@ def main():
         pool = newalloc[i][0]
         print(pool)
         collateral = interface.ICollateral(
-            interface.ILendingPoolToken(pool).collateral()
+            Contract(pool).collateral()
         )
         print(f"collateral : {collateral}")
         pair = interface.IUniswapV2Pair(

@@ -257,7 +257,7 @@ contract StrategyImperamaxLender is BaseStrategy {
         uint256 debt = vault.strategies(address(this)).totalDebt;
 
         // if assets are greater than debt, things are working great!
-        if (assets > debt) {
+        if (assets >= debt) {
             _profit = assets.sub(debt);
 
             // we need to prove to the vault that we have enough want to cover our profit and debt payment
@@ -300,10 +300,10 @@ contract StrategyImperamaxLender is BaseStrategy {
 
     function _deposit(uint256 _depositAmount) internal {
         // Deposit to highest utilization pair, which should be last in our pools array
-        for (uint256 i = pools.length; i >= 0; i--) {
-            if (!preventDeposits[i]) {
+        for (uint256 i = pools.length; i > 0; i--) {
+            if (!preventDeposits[i-1]) {
                 // only deposit to this pool if it's not shutting down.
-                address targetPool = pools[i];
+                address targetPool = pools[i-1];
                 want.transfer(targetPool, _depositAmount);
                 require(IBorrowable(targetPool).mint(address(this)) >= 0);
                 break;
@@ -483,6 +483,18 @@ contract StrategyImperamaxLender is BaseStrategy {
 
     ///@notice Add another Tarot pool to our strategy for lending. This can only be called by governance.
     function addTarotPool(address _newPool) external onlyGovernance {
+        _addTarotPool(_newPool);
+    }
+
+    ///@notice Add multiple Tarot pools to our strategy for lending. This can only be called by governance.
+    function addTarotPools(address[] calldata _newPools) external onlyGovernance {
+        for (uint256 i = 0; i < _newPools.length; i++) { 
+            _addTarotPool(_newPools[i]);
+        }
+    }
+
+    ///@notice Add another Tarot pool to our strategy for lending (Internal)
+    function _addTarotPool(address _newPool) internal {
         // asset must match want.
         require(IBorrowable(_newPool).underlying() == address(want));
 

@@ -34,10 +34,10 @@ def whale(accounts):  # WFTM
 
 # Define relevant tokens and contracts in this section
 @pytest.fixture(scope="module")
-def token():  # WFTM
+def token(interface):  # WFTM
     # this should be the address of the ERC-20 used by the strategy/vault
     token_address = "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83"
-    yield Contract(token_address)
+    yield interface.ERC20(token_address)
 
 
 # These are the pools we will lend to (WFTM vault)
@@ -215,9 +215,10 @@ def strategy(
     strategy = strategist.deploy(
         StrategyImperamaxLender,
         vault,
-        pools,
         strategy_name,
     )
+    strategy.addTarotPools(pools, {"from": gov})
+
     strategy.setKeeper(keeper, {"from": gov})
     # set our management fee to zero so it doesn't mess with our profit checking
     vault.setManagementFee(0, {"from": gov})

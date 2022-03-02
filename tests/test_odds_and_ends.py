@@ -58,9 +58,9 @@ def test_odds_and_ends(
     new_strategy = strategist.deploy(
         StrategyImperamaxLender,
         vault,
-        pools,
         strategy_name,
     )
+    new_strategy.addTarotPools(pools, {"from": gov})
     total_old = strategy.estimatedTotalAssets()
 
     # migrate our old strategy
@@ -170,9 +170,9 @@ def test_odds_and_ends_migration(
     new_strategy = strategist.deploy(
         StrategyImperamaxLender,
         vault,
-        pools,
         strategy_name,
     )
+    new_strategy.addTarotPools(pools, {"from": gov})
     total_old = strategy.estimatedTotalAssets()
 
     # can we harvest an unactivated strategy? should be no

@@ -24,16 +24,16 @@ def test_cloning(
             strategist,
             rewards,
             keeper,
-            pools,
             strategy_name,
             {"from": gov},
         )
 
     ## clone our strategy
     tx = strategy.cloneTarotLender(
-        vault, strategist, rewards, keeper, pools, strategy_name, {"from": gov}
+        vault, strategist, rewards, keeper, strategy_name, {"from": gov}
     )
     newStrategy = StrategyImperamaxLender.at(tx.return_value)
+    newStrategy.addTarotPools(pools, {"from": gov})
 
     # Shouldn't be able to call initialize again
     with brownie.reverts():
@@ -42,7 +42,6 @@ def test_cloning(
             strategist,
             rewards,
             keeper,
-            pools,
             strategy_name,
             {"from": gov},
         )
@@ -50,7 +49,7 @@ def test_cloning(
     ## shouldn't be able to clone a clone
     with brownie.reverts():
         newStrategy.cloneTarotLender(
-            vault, strategist, rewards, keeper, pools, strategy_name, {"from": gov}
+            vault, strategist, rewards, keeper, strategy_name, {"from": gov}
         )
 
     vault.revokeStrategy(strategy, {"from": gov})
